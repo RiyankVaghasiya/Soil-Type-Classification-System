@@ -4,8 +4,9 @@ import pandas as pd
 import numpy as np
 from src.exception import CustomException
 import dill
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score,accuracy_score
 from sklearn.model_selection import GridSearchCV
+from src.logger import logging
 
 def save_object(file_path,obj):
     try:
@@ -20,30 +21,40 @@ def save_object(file_path,obj):
         raise CustomException(e,sys)
 
 
-def evaluate_model(x_train,y_train,x_test,y_test,models,param):
+def evaluate_model(X_train,y_train,X_test,y_test,models,params):
     try:
         report = {}
-        for i in range(len(list(models))):
-            model = list(models.values())[i]
-            para = param[list(models.keys())[i]]
+        for model_name in models:
+            model = models[model_name]
+            param_grid = params[model_name]
 
-            gs = GridSearchCV(model,para,cv=3)
-            gs.fit(x_train,y_train)
+            logging.info(f"Performing GridSearchCV for {model_name}...")
+            grid_search = GridSearchCV(model, param_grid, cv=3)
+            grid_search.fit(X_train, y_train)
 
-            model.set_params(**gs.best_params_)
-            model.fit(x_train, y_train) # Train model
+            best_model = grid_search.best_estimator_
+            logging.info(f"Best params for {model_name}: {grid_search.best_params_}")
 
-            # Make predictions
-            y_train_pred = model.predict(x_train)
-            y_test_pred = model.predict(x_test)
-            
-            # Evaluate Train and Test dataset
-            train_model_score = r2_score(y_train,y_train_pred)
-            test_model_score = r2_score(y_test,y_test_pred)
+            # Train best model again on full training data
+            best_model.fit(X_train, y_train)
 
-            report[list(models.keys())[i]] = test_model_score
+            # Predict and evaluate
+            train_preds = best_model.predict(X_train)
+            test_preds = best_model.predict(X_test)
+
+            train_acc = accuracy_score(y_train, train_preds)
+            test_acc = accuracy_score(y_test, test_preds)
+
+            logging.info(f"{model_name} - Train Accuracy: {train_acc:.4f}, Test Accuracy: {test_acc:.4f}")
+
+            report[model_name] = {
+                "train_accuracy": train_acc,
+                "test_accuracy": test_acc,
+                "best_model": best_model
+            }
 
         return report
+
 
     except Exception as e:
         raise CustomException(e,sys)

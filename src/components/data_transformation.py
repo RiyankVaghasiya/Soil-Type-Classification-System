@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from src.exception import CustomException
 from sklearn.preprocessing import LabelEncoder
 from src.utils import save_object
-from sklearn.model_selection import train_test_split
 
 
 @dataclass
@@ -75,6 +74,7 @@ class DataTransformation:
                 save_object(os.path.join(self.data_transformation_config.transformed_data_dir, "X.pkl"), X)
                 save_object(os.path.join(self.data_transformation_config.transformed_data_dir, "y.pkl"), y)
 
+                logging.info("Data Transformation Done")
                 return X, y
             
             except Exception as e:

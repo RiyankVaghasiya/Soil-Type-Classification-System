@@ -3,6 +3,7 @@ import sys
 from sklearn.model_selection import train_test_split
 from src.components.data_ingestion import DataIngestion
 from src.components.data_transformation import DataTransformation
+from src.components.model_trainer import ModelTrainer
 from src.logger import logging
 from src.exception import CustomException
 
@@ -11,6 +12,8 @@ class TrainPipeline:
     def __init__(self):
         self.data_ingestion = DataIngestion()
         self.data_transformation = DataTransformation()
+        self.model_trainer = ModelTrainer()
+
 
     def run_pipeline(self):
         logging.info("Starting the training pipeline...")
@@ -30,11 +33,15 @@ class TrainPipeline:
 
             logging.info(f"Data split complete. Train shape: {X_train.shape}, Test shape: {X_test.shape}")
 
-            return X_train, X_test, y_train, y_test
+            # STEP 4: Train the model
+            logging.info("Model Training...")
+            self.model_trainer.initiate_model_trainer(X_train, y_train, X_test, y_test)
+
+            logging.info("Training Pipeline completed successfully.")
 
         except Exception as e:
             raise CustomException(e, sys)
 
 if __name__ == "__main__":
     pipeline = TrainPipeline()
-    X_train, X_test, y_train, y_test = pipeline.run_pipeline()
+    pipeline.run_pipeline()

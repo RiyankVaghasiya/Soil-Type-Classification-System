@@ -4,7 +4,7 @@ import pandas as pd
 from src.exception import  CustomException
 from src.logger import logging
 from dataclasses import dataclass
-from src.components.data_transformation import DataTransformation
+
 
 @dataclass
 class DataIngestionConfig:
@@ -43,10 +43,4 @@ class DataIngestion:
         
         except Exception as e:
             raise CustomException(e,sys)
-        
-if __name__ =='__main__':
-    obj = DataIngestion()
-    df =  obj.create_dataset_csv()
 
-    data_transformation = DataTransformation()
-    X, y =  data_transformation.transform_data(df)
