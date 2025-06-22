@@ -4,7 +4,7 @@ import pandas as pd
 from src.exception import  CustomException
 from src.logger import logging
 from dataclasses import dataclass
-
+from src.components.data_transformation import DataTransformation
 
 @dataclass
 class DataIngestionConfig:
@@ -39,7 +39,6 @@ class DataIngestion:
             print(f"Dataset CSV saved to {self.ingestion_config.dataset_info_file}")
 
             logging.info("Ingestion of data is completed")
-            print(df)
             return df
         
         except Exception as e:
@@ -49,4 +48,5 @@ if __name__ =='__main__':
     obj = DataIngestion()
     df =  obj.create_dataset_csv()
 
-  
+    data_transformation = DataTransformation()
+    X, y =  data_transformation.transform_data(df)
