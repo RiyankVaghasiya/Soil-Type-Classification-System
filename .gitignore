@@ -140,11 +140,11 @@ cython_debug/
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python
 
 # .gitignore
-data/
+!data/processed/
+data/raw/
 logs/
 models/
 saved_images/
 *.zip
 *.h5
-*.pkl
 *.pt
