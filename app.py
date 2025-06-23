@@ -1,24 +1,36 @@
-from flask import Flask,request,render_template
-import numpy as np
-import pandas as pd
+import os
+from flask import Flask, render_template, request
+from src.pipeline.predict_pipeline import PredictPipeline
+from werkzeug.utils import secure_filename
 
-from sklearn.preprocessing import StandardScaler
-# from src.pipeline.predict_pipeline import CustomData,PredictPipeline
-from src.components.data_ingestion import load_image_data
+app = Flask(__name__)
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-application = Flask(__name__)
-app = application
-
-
-
-## Route for a home page
 @app.route('/')
-def index():
-    return render_template('index.html') 
+def home():
+    return render_template('index.html')
 
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'file' not in request.files:
+        return "No file part"
+    
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file"
+    
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
 
+        # Run prediction pipeline
+        predictor = PredictPipeline()
+        prediction = predictor.predict(file_path)
 
-if __name__=="__main__":
-    df = load_image_data()  
-    print(df)  
-    app.run(host="0.0.0.0") 
+        return render_template('index.html', prediction=f"Predicted Soil Type: {prediction}", image_path=file_path)
+
+if __name__ == "__main__":
+    print("Starting Flask server at http://127.0.0.1:5000")
+    app.run(debug=True, host="127.0.0.1", port=5000)
