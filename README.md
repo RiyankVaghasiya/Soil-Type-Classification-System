@@ -18,6 +18,7 @@ Farmers and agronomists often struggle with identifying soil types accurately wi
 - Scikit-learn (ML Models)
 - Matplotlib / Seaborn (Visualization)
 - `dill` (for saving models & objects)
+- HTML/CSS (UI Designing)
 - VS Code (IDE)
 
 ---
